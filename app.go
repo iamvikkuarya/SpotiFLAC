@@ -1183,3 +1183,45 @@ func (a *App) CheckFFmpegInstalled() (bool, error) {
 func (a *App) GetOSInfo() (string, error) {
 	return backend.GetOSInfo()
 }
+
+// Parallel Download APIs
+
+// GetParallelConfig returns the current parallel download configuration
+func (a *App) GetParallelConfig() backend.ParallelConfig {
+	return backend.ParallelConfig{
+		MaxConcurrent: backend.GetMaxWorkers(),
+		Enabled:       backend.GetMaxWorkers() > 1,
+	}
+}
+
+// SetParallelConfig sets the parallel download configuration
+func (a *App) SetParallelConfig(maxConcurrent int) {
+	backend.SetMaxWorkers(maxConcurrent)
+}
+
+// GetParallelProgress returns the current parallel download progress
+func (a *App) GetParallelProgress() backend.ParallelDownloadProgress {
+	return backend.GetParallelProgress()
+}
+
+// PreFetchURLs pre-fetches streaming URLs for multiple tracks
+// This is Phase 1 of parallel downloads - respects song.link rate limits
+func (a *App) PreFetchURLs(spotifyIDs []string) (*backend.BatchURLResult, error) {
+	if len(spotifyIDs) == 0 {
+		return nil, fmt.Errorf("no track IDs provided")
+	}
+
+	// Reset progress tracking
+	backend.ResetParallelProgress()
+
+	// Update progress during pre-fetch
+	result := backend.PreFetchStreamingURLs(spotifyIDs, func(current, total int) {
+		backend.SetParallelProgress(backend.ParallelDownloadProgress{
+			Phase:   "prefetch",
+			Current: current,
+			Total:   total,
+		})
+	})
+
+	return result, nil
+}

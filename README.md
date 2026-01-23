@@ -14,7 +14,18 @@ Get Spotify tracks in true FLAC from Tidal, Qobuz & Amazon Music — no account 
 
 <a href="https://trendshift.io/repositories/15737" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15737" alt="afkarxyz%2FSpotiFLAC | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
+
 </div>
+
+## ⚡ What's New in This Fork
+
+This fork introduces significant performance improvements over the original:
+
+- **Parallel Downloads**: Download multiple tracks simultaneously (configurable 1-3 concurrent downloads).
+- **Smart Rate Limiting**: Automatic fallback system that detects API limits and adjusts concurrency on the fly to prevent failures.
+- **Worker Pool Architecture**: Efficiently manages download slots to maximize speed without overwhelming the APIs.
+- **UI Enhancements**: New settings controls and safety warnings for high-concurrency modes.
+
 
 ### [Download](https://github.com/afkarxyz/SpotiFLAC/releases)
 
