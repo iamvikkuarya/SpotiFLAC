@@ -1,57 +1,49 @@
-[![GitHub All Releases](https://img.shields.io/github/downloads/afkarxyz/SpotiFLAC/total?style=for-the-badge)](https://github.com/afkarxyz/SpotiFLAC/releases)
-[![Telegram Channel](https://img.shields.io/badge/CHANNEL-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/spotiflac)
-[![Telegram Community](https://img.shields.io/badge/COMMUNITY-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/spotiflac_chat)
+# SpotiFLAC (Enhanced Fork)
 
-<!-- ![Maintenance](https://maintenance.afkarxyz.fun?v=3) -->
+> Forked from [afkarxyz/SpotiFLAC](https://github.com/afkarxyz/SpotiFLAC) — all credit for the original project goes to the original author.
 
-![Image](https://github.com/user-attachments/assets/a6e92fdd-2944-45c1-83e8-e23a26c827af)
-
-<div align="center">
-
-Get Spotify tracks in true FLAC from Tidal, Qobuz & Amazon Music — no account required.
+Get Spotify tracks in lossless FLAC from Tidal, Qobuz & Amazon Music — no account required.
 
 ![Windows](https://img.shields.io/badge/Windows-10%2B-0078D6?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgMjAgMjAiPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZD0iTTIwIDEwLjg3M1YyMEw4LjQ3OSAxOC41MzdsLjAwMS03LjY2NEgyMFptLTEzLjEyIDBsLS4wMDEgNy40NjFMMCAxNy40NjF2LTYuNTg4aDYuODhaTTIwIDkuMjczSDguNDhsLS4wMDEtNy44MUwyMCAwdjkuMjczWk02Ljg3OSAxLjY2NmwuMDAxIDcuNjA3SDBWMi41MzlsNi44NzktLjg3M1oiLz48L3N2Zz4=)
 ![macOS](https://img.shields.io/badge/macOS-10.13%2B-000000?style=for-the-badge&logo=apple&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-Any-FCC624?style=for-the-badge&logo=linux&logoColor=white)
 
-<a href="https://trendshift.io/repositories/15737" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15737" alt="afkarxyz%2FSpotiFLAC | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+### [Download Latest Release](https://github.com/iamvikkuarya/SpotiFLAC/releases)
 
+---
 
-</div>
+## What This Fork Adds
 
-## ⚡ What's New in This Fork
+This fork builds on top of the original SpotiFLAC with two major features:
 
-This fork introduces significant performance improvements over the original:
+### Parallel Downloads (1-5 concurrent workers)
+- Download multiple tracks simultaneously instead of one at a time
+- Configurable from 1 (sequential) to 5 (maximum) concurrent downloads
+- Ideal for batch downloading albums and playlists
 
-- **Parallel Downloads**: Download multiple tracks simultaneously (configurable 1-3 concurrent downloads).
-- **Smart Rate Limiting**: Automatic fallback system that detects API limits and adjusts concurrency on the fly to prevent failures.
-- **Worker Pool Architecture**: Efficiently manages download slots to maximize speed without overwhelming the APIs.
-- **UI Enhancements**: New settings controls and safety warnings for high-concurrency modes.
+### Output Format Selection
+- **FLAC** — Lossless (default, same as original)
+- **MP3** — Lossy, configurable bitrate: 128k / 192k / 256k / 320k
+- **AAC (M4A)** — Lossy, configurable bitrate: 128k / 192k / 256k / 320k
 
+Downloads are always fetched in lossless quality first, then automatically converted to your selected format with full metadata preservation (title, artist, album, cover art, lyrics).
 
-### [Download](https://github.com/afkarxyz/SpotiFLAC/releases)
+---
 
 ## Screenshot
 
 ![Image](https://github.com/user-attachments/assets/adbdc056-bace-44a9-8ba6-898b4526b65a)
 
-## Other projects
+## Original Project
 
-### [SpotiFLAC Next](https://github.com/spotiverse/SpotiFLAC-Next)
+### [SpotiFLAC](https://github.com/afkarxyz/SpotiFLAC)
 
-Get Spotify tracks in Hi-Res lossless FLACs — no account required.
+This fork is based on SpotiFLAC by [afkarxyz](https://github.com/afkarxyz). Check out the original project and their other work:
 
-### [SpotiDownloader](https://github.com/afkarxyz/SpotiDownloader)
-
-Get Spotify tracks in MP3 and FLAC via spotidownloader.com
-
-### [SpotubeDL](https://spotubedl.com)
-
-Download Spotify Tracks, Albums, Playlists as MP3/OGG/Opus with High Quality.
-
-### [SpotiFLAC (Mobile)](https://github.com/zarzet/SpotiFLAC-Mobile)
-
-SpotiFLAC for Android & iOS — maintained by [@zarzet](https://github.com/zarzet)
+- [SpotiFLAC Next](https://github.com/spotiverse/SpotiFLAC-Next) — Hi-Res lossless FLACs
+- [SpotiDownloader](https://github.com/afkarxyz/SpotiDownloader) — MP3 and FLAC via spotidownloader.com
+- [SpotubeDL](https://spotubedl.com) — MP3/OGG/Opus downloads
+- [SpotiFLAC Mobile](https://github.com/zarzet/SpotiFLAC-Mobile) — Android & iOS
 
 ## FAQ
 
@@ -83,14 +75,6 @@ It likely happens because the executable is compressed using UPX._
 
 _If you are concerned, you can fork the repository and build the software yourself from source._
 
-### Want to support the project?
-
-_If this software is useful and brings you value,
-consider supporting the project by buying me a coffee.
-Your support helps keep development going._
-
-[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/afkarxyz)
-
 ## Disclaimer
 
 This project is for **educational and private use only**. The developer does not condone or encourage copyright infringement.
@@ -109,7 +93,3 @@ The software is provided "as is", without warranty of any kind. The author assum
 
 - **Tidal**: [hifi-api](https://github.com/binimum/hifi-api)
 - **Qobuz**: [dabmusic.xyz](https://dabmusic.xyz), [squid.wtf](https://squid.wtf), [jumo-dl](https://jumo-dl.pages.dev/)
-
-> [!TIP]
->
-> **Star Us**, You will receive all release notifications from GitHub without any delay ~
