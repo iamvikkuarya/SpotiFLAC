@@ -203,12 +203,7 @@ func (a *App) DownloadTrack(req DownloadRequest) (DownloadResponse, error) {
 	if req.OutputDir == "" {
 		req.OutputDir = "."
 	} else {
-
-		if req.PlaylistName != "" {
-			sanitizedPlaylist := backend.SanitizeFilename(req.PlaylistName)
-			req.OutputDir = filepath.Join(req.OutputDir, sanitizedPlaylist)
-		}
-
+		// Download directly to the selected folder without creating subfolders
 		req.OutputDir = backend.SanitizeFolderPath(req.OutputDir)
 	}
 
