@@ -57,13 +57,13 @@ func GetMaxWorkers() int {
 	return int(atomic.LoadInt32(&parallelState.maxWorkers))
 }
 
-// SetMaxWorkers sets the maximum concurrent downloads (1-3)
+// SetMaxWorkers sets the maximum concurrent downloads (1-5)
 func SetMaxWorkers(max int) {
 	if max < 1 {
 		max = 1
 	}
-	if max > 3 {
-		max = 3
+	if max > 5 {
+		max = 5
 	}
 	atomic.StoreInt32(&parallelState.maxWorkers, int32(max))
 }
@@ -82,8 +82,8 @@ func DecrementActiveWorkers() {
 func RecordRateLimitHit() {
 	hits := atomic.AddInt32(&parallelState.rateLimitHits, 1)
 
-	// If we hit 3+ rate limits, auto-reduce concurrency
-	if hits >= 3 && !parallelState.autoReduced {
+	// If we hit 5+ rate limits, auto-reduce concurrency
+	if hits >= 5 && !parallelState.autoReduced {
 		parallelState.mutex.Lock()
 		if !parallelState.autoReduced {
 			current := atomic.LoadInt32(&parallelState.maxWorkers)

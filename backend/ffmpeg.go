@@ -657,6 +657,59 @@ func ConvertAudio(req ConvertAudioRequest) ([]ConvertAudioResult, error) {
 	return results, nil
 }
 
+// ConvertDownloadedFileToFormat converts a downloaded FLAC file to the specified format (mp3/aac)
+// and returns the path to the converted file. Deletes the original FLAC after successful conversion.
+func ConvertDownloadedFileToFormat(inputFile string, format string, bitrate string) (string, error) {
+	// Validate format
+	if format != "mp3" && format != "aac" {
+		return "", fmt.Errorf("unsupported format: %s", format)
+	}
+
+	// Determine output file path and extension
+	ext := "." + format
+	if format == "aac" {
+		ext = ".m4a"
+	}
+	outputFile := strings.TrimSuffix(inputFile, filepath.Ext(inputFile)) + ext
+
+	// Build output format string for ConvertAudio
+	outputFormat := strings.TrimPrefix(ext, ".")
+	codec := format
+	if format == "aac" {
+		codec = "aac"
+		outputFormat = "m4a"
+	}
+
+	// Use existing ConvertAudio infrastructure
+	req := ConvertAudioRequest{
+		InputFiles:   []string{inputFile},
+		OutputFormat: outputFormat,
+		Bitrate:      bitrate,
+		Codec:        codec,
+	}
+
+	results, err := ConvertAudio(req)
+	if err != nil {
+		return "", fmt.Errorf("conversion failed: %v", err)
+	}
+
+	if len(results) == 0 || !results[0].Success {
+		errorMsg := "unknown error"
+		if len(results) > 0 {
+			errorMsg = results[0].Error
+		}
+		return "", fmt.Errorf("conversion failed: %s", errorMsg)
+	}
+
+	// Delete original FLAC file after successful conversion
+	if err := os.Remove(inputFile); err != nil {
+		fmt.Printf("[Format] Warning: Failed to delete original FLAC: %v\n", err)
+		// Don't return error - conversion succeeded, just cleanup failed
+	}
+
+	return results[0].OutputFile, nil
+}
+
 type AudioFileInfo struct {
 	Path     string `json:"path"`
 	Filename string `json:"filename"`

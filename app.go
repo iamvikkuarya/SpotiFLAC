@@ -476,6 +476,46 @@ func (a *App) DownloadTrack(req DownloadRequest) (DownloadResponse, error) {
 		message = "File already exists"
 		backend.SkipDownloadItem(itemID, filename)
 	} else {
+		// Check if format conversion is needed
+		settings, settingsErr := a.LoadSettings()
+		if settingsErr == nil && settings != nil {
+			settingsMap, ok := settings.(map[string]interface{})
+			if ok {
+				outputFormat, hasFormat := settingsMap["outputFormat"].(string)
+				if hasFormat && outputFormat != "" && outputFormat != "flac" {
+					fmt.Printf("[Format] Converting to %s...\n", strings.ToUpper(outputFormat))
+
+					// Determine bitrate based on format
+					bitrate := "320k"
+					if outputFormat == "mp3" {
+						if mp3Bitrate, ok := settingsMap["mp3Bitrate"].(string); ok && mp3Bitrate != "" {
+							bitrate = mp3Bitrate
+						}
+					} else if outputFormat == "aac" {
+						if aacBitrate, ok := settingsMap["aacBitrate"].(string); ok && aacBitrate != "" {
+							bitrate = aacBitrate
+						} else {
+							bitrate = "256k" // AAC default
+						}
+					}
+
+					// Convert file
+					convertedFile, convErr := backend.ConvertDownloadedFileToFormat(
+						filename,
+						outputFormat,
+						bitrate,
+					)
+
+					if convErr != nil {
+						fmt.Printf("[Format] Warning: Conversion failed: %v\n", convErr)
+						// Don't fail download - user still has FLAC
+					} else {
+						filename = convertedFile
+						fmt.Printf("[Format] ✓ Converted to: %s\n", filepath.Base(convertedFile))
+					}
+				}
+			}
+		}
 
 		if fileInfo, statErr := os.Stat(filename); statErr == nil {
 			finalSize := float64(fileInfo.Size()) / (1024 * 1024)
