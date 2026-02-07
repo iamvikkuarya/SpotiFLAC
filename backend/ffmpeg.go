@@ -665,12 +665,11 @@ func ConvertDownloadedFileToFormat(inputFile string, format string, bitrate stri
 		return "", fmt.Errorf("unsupported format: %s", format)
 	}
 
-	// Determine output file path and extension
+	// Determine output extension
 	ext := "." + format
 	if format == "aac" {
 		ext = ".m4a"
 	}
-	outputFile := strings.TrimSuffix(inputFile, filepath.Ext(inputFile)) + ext
 
 	// Build output format string for ConvertAudio
 	outputFormat := strings.TrimPrefix(ext, ".")
