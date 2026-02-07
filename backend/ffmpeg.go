@@ -658,55 +658,100 @@ func ConvertAudio(req ConvertAudioRequest) ([]ConvertAudioResult, error) {
 }
 
 // ConvertDownloadedFileToFormat converts a downloaded FLAC file to the specified format (mp3/aac)
-// and returns the path to the converted file. Deletes the original FLAC after successful conversion.
+// and returns the path to the converted file. Keeps the output in the same directory as the input.
+// Deletes the original FLAC after successful conversion.
 func ConvertDownloadedFileToFormat(inputFile string, format string, bitrate string) (string, error) {
-	// Validate format
 	if format != "mp3" && format != "aac" {
 		return "", fmt.Errorf("unsupported format: %s", format)
 	}
 
-	// Determine output extension
-	ext := "." + format
+	ffmpegPath, err := GetFFmpegPath()
+	if err != nil {
+		return "", fmt.Errorf("failed to get ffmpeg path: %w", err)
+	}
+
+	if err := ValidateExecutable(ffmpegPath); err != nil {
+		return "", fmt.Errorf("invalid ffmpeg executable: %w", err)
+	}
+
+	// Determine output file path (same directory, different extension)
+	inputExt := filepath.Ext(inputFile)
+	baseName := strings.TrimSuffix(filepath.Base(inputFile), inputExt)
+	inputDir := filepath.Dir(inputFile)
+
+	ext := ".mp3"
 	if format == "aac" {
 		ext = ".m4a"
 	}
+	outputFile := filepath.Join(inputDir, baseName+ext)
 
-	// Build output format string for ConvertAudio
-	outputFormat := strings.TrimPrefix(ext, ".")
-	codec := format
-	if format == "aac" {
-		codec = "aac"
-		outputFormat = "m4a"
+	// Extract metadata, cover art, and lyrics from original file
+	inputMetadata, metaErr := ExtractFullMetadataFromFile(inputFile)
+	if metaErr != nil {
+		fmt.Printf("[Format] Warning: Failed to extract metadata: %v\n", metaErr)
 	}
 
-	// Use existing ConvertAudio infrastructure
-	req := ConvertAudioRequest{
-		InputFiles:   []string{inputFile},
-		OutputFormat: outputFormat,
-		Bitrate:      bitrate,
-		Codec:        codec,
-	}
-
-	results, err := ConvertAudio(req)
-	if err != nil {
-		return "", fmt.Errorf("conversion failed: %v", err)
-	}
-
-	if len(results) == 0 || !results[0].Success {
-		errorMsg := "unknown error"
-		if len(results) > 0 {
-			errorMsg = results[0].Error
+	coverArtPath, _ := ExtractCoverArt(inputFile)
+	defer func() {
+		if coverArtPath != "" {
+			os.Remove(coverArtPath)
 		}
-		return "", fmt.Errorf("conversion failed: %s", errorMsg)
+	}()
+
+	lyrics, lyricsErr := ExtractLyrics(inputFile)
+	if lyricsErr != nil {
+		fmt.Printf("[Format] Warning: Failed to extract lyrics: %v\n", lyricsErr)
+	}
+	inputMetadata.Lyrics = lyrics
+
+	// Build FFmpeg arguments
+	args := []string{"-i", inputFile, "-y"}
+
+	switch format {
+	case "mp3":
+		args = append(args,
+			"-codec:a", "libmp3lame",
+			"-b:a", bitrate,
+			"-map", "0:a",
+			"-id3v2_version", "3",
+		)
+	case "aac":
+		args = append(args,
+			"-codec:a", "aac",
+			"-b:a", bitrate,
+			"-map", "0:a",
+		)
+	}
+
+	args = append(args, outputFile)
+
+	fmt.Printf("[Format] Converting: %s -> %s\n", filepath.Base(inputFile), filepath.Base(outputFile))
+
+	cmd := exec.Command(ffmpegPath, args...)
+	setHideWindow(cmd)
+	output, cmdErr := cmd.CombinedOutput()
+	if cmdErr != nil {
+		return "", fmt.Errorf("ffmpeg conversion failed: %s - %s", cmdErr.Error(), string(output))
+	}
+
+	// Embed metadata to converted file
+	if err := EmbedMetadataToConvertedFile(outputFile, inputMetadata, coverArtPath); err != nil {
+		fmt.Printf("[Format] Warning: Failed to embed metadata: %v\n", err)
+	}
+
+	// Embed lyrics if available
+	if lyrics != "" {
+		if err := EmbedLyricsOnlyUniversal(outputFile, lyrics); err != nil {
+			fmt.Printf("[Format] Warning: Failed to embed lyrics: %v\n", err)
+		}
 	}
 
 	// Delete original FLAC file after successful conversion
 	if err := os.Remove(inputFile); err != nil {
 		fmt.Printf("[Format] Warning: Failed to delete original FLAC: %v\n", err)
-		// Don't return error - conversion succeeded, just cleanup failed
 	}
 
-	return results[0].OutputFile, nil
+	return outputFile, nil
 }
 
 type AudioFileInfo struct {

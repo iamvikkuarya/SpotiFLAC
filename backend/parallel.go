@@ -33,14 +33,9 @@ type BatchURLResult struct {
 
 // ParallelDownloadState tracks the state of parallel downloads
 type ParallelDownloadState struct {
-	activeWorkers  int32
-	maxWorkers     int32
-	totalQueued    int32
-	totalCompleted int32
-	totalFailed    int32
-	mutex          sync.RWMutex
-	rateLimitHits  int32
-	autoReduced    bool
+	activeWorkers int32
+	maxWorkers    int32
+	mutex         sync.RWMutex
 }
 
 var parallelState = &ParallelDownloadState{
@@ -66,80 +61,6 @@ func SetMaxWorkers(max int) {
 		max = 5
 	}
 	atomic.StoreInt32(&parallelState.maxWorkers, int32(max))
-}
-
-// IncrementActiveWorkers safely increments active worker count
-func IncrementActiveWorkers() {
-	atomic.AddInt32(&parallelState.activeWorkers, 1)
-}
-
-// DecrementActiveWorkers safely decrements active worker count
-func DecrementActiveWorkers() {
-	atomic.AddInt32(&parallelState.activeWorkers, -1)
-}
-
-// RecordRateLimitHit records a rate limit hit and potentially auto-reduces concurrency
-func RecordRateLimitHit() {
-	hits := atomic.AddInt32(&parallelState.rateLimitHits, 1)
-
-	// If we hit 5+ rate limits, auto-reduce concurrency
-	if hits >= 5 && !parallelState.autoReduced {
-		parallelState.mutex.Lock()
-		if !parallelState.autoReduced {
-			current := atomic.LoadInt32(&parallelState.maxWorkers)
-			if current > 1 {
-				atomic.StoreInt32(&parallelState.maxWorkers, current-1)
-				parallelState.autoReduced = true
-				fmt.Printf("⚠️ Auto-reduced concurrent downloads to %d due to rate limits\n", current-1)
-			}
-		}
-		parallelState.mutex.Unlock()
-	}
-}
-
-// ResetRateLimitCounter resets the rate limit counter (call at start of new batch)
-func ResetRateLimitCounter() {
-	atomic.StoreInt32(&parallelState.rateLimitHits, 0)
-	parallelState.mutex.Lock()
-	parallelState.autoReduced = false
-	parallelState.mutex.Unlock()
-}
-
-// WorkerSemaphore manages concurrent worker slots
-type WorkerSemaphore struct {
-	slots chan struct{}
-	max   int
-}
-
-// NewWorkerSemaphore creates a new semaphore with the given capacity
-func NewWorkerSemaphore(max int) *WorkerSemaphore {
-	return &WorkerSemaphore{
-		slots: make(chan struct{}, max),
-		max:   max,
-	}
-}
-
-// Acquire blocks until a slot is available
-func (s *WorkerSemaphore) Acquire() {
-	s.slots <- struct{}{}
-	IncrementActiveWorkers()
-}
-
-// Release frees a slot
-func (s *WorkerSemaphore) Release() {
-	<-s.slots
-	DecrementActiveWorkers()
-}
-
-// TryAcquire attempts to acquire a slot without blocking
-func (s *WorkerSemaphore) TryAcquire() bool {
-	select {
-	case s.slots <- struct{}{}:
-		IncrementActiveWorkers()
-		return true
-	default:
-		return false
-	}
 }
 
 // PreFetchStreamingURLs fetches streaming URLs for multiple tracks with rate limiting
@@ -231,5 +152,4 @@ func ResetParallelProgress() {
 	parallelProgressLock.Lock()
 	parallelProgress = ParallelDownloadProgress{}
 	parallelProgressLock.Unlock()
-	ResetRateLimitCounter()
 }
