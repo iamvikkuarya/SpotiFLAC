@@ -13,7 +13,7 @@ export function useLyrics() {
     const [isBulkDownloadingLyrics, setIsBulkDownloadingLyrics] = useState(false);
     const [lyricsDownloadProgress, setLyricsDownloadProgress] = useState(0);
     const stopBulkDownloadRef = useRef(false);
-    const handleDownloadLyrics = async (spotifyId: string, trackName: string, artistName: string, albumName?: string, playlistName?: string, position?: number, albumArtist?: string, releaseDate?: string, discNumber?: number, isAlbum?: boolean) => {
+    const handleDownloadLyrics = async (spotifyId: string, trackName: string, artistName: string, albumName?: string, playlistName?: string, position?: number, albumArtist?: string, releaseDate?: string, discNumber?: number, _isAlbum?: boolean) => {
         if (!spotifyId) {
             toast.error("No Spotify ID found for this track");
             return;
@@ -32,11 +32,6 @@ export function useLyrics() {
                 track: position,
                 playlist: playlistName?.replace(/\//g, placeholder),
             };
-            const folderTemplate = settings.folderTemplate || "";
-            const useAlbumSubfolder = folderTemplate.includes("{album}") || folderTemplate.includes("{album_artist}") || folderTemplate.includes("{playlist}");
-            if (playlistName && (!isAlbum || !useAlbumSubfolder)) {
-                outputDir = joinPath(os, outputDir, sanitizePath(playlistName.replace(/\//g, " "), os));
-            }
             if (settings.folderTemplate) {
                 const folderPath = parseTemplate(settings.folderTemplate, templateData);
                 if (folderPath) {
@@ -90,7 +85,7 @@ export function useLyrics() {
             setDownloadingLyricsTrack(null);
         }
     };
-    const handleDownloadAllLyrics = async (tracks: TrackMetadata[], playlistName?: string, _isArtistDiscography?: boolean, isAlbum?: boolean) => {
+    const handleDownloadAllLyrics = async (tracks: TrackMetadata[], playlistName?: string, _isArtistDiscography?: boolean, _isAlbum?: boolean) => {
         const tracksWithSpotifyId = tracks.filter((track) => track.spotify_id);
         if (tracksWithSpotifyId.length === 0) {
             toast.error("No tracks with Spotify ID available for lyrics download");
@@ -127,11 +122,6 @@ export function useLyrics() {
                     track: trackPosition,
                     playlist: playlistName?.replace(/\//g, placeholder),
                 };
-                const folderTemplate = settings.folderTemplate || "";
-                const useAlbumSubfolder = folderTemplate.includes("{album}") || folderTemplate.includes("{album_artist}") || folderTemplate.includes("{playlist}");
-                if (playlistName && (!isAlbum || !useAlbumSubfolder)) {
-                    outputDir = joinPath(os, outputDir, sanitizePath(playlistName.replace(/\//g, " "), os));
-                }
                 if (settings.folderTemplate) {
                     const folderPath = parseTemplate(settings.folderTemplate, templateData);
                     if (folderPath) {

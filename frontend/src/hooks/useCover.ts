@@ -14,7 +14,7 @@ export function useCover() {
     const [isBulkDownloadingCovers, setIsBulkDownloadingCovers] = useState(false);
     const [coverDownloadProgress, setCoverDownloadProgress] = useState(0);
     const stopBulkDownloadRef = useRef(false);
-    const handleDownloadCover = async (coverUrl: string, trackName: string, artistName: string, albumName?: string, playlistName?: string, position?: number, trackId?: string, albumArtist?: string, releaseDate?: string, discNumber?: number, isAlbum?: boolean) => {
+    const handleDownloadCover = async (coverUrl: string, trackName: string, artistName: string, albumName?: string, playlistName?: string, position?: number, trackId?: string, albumArtist?: string, releaseDate?: string, discNumber?: number, _isAlbum?: boolean) => {
         if (!coverUrl) {
             toast.error("No cover URL found for this track");
             return;
@@ -35,11 +35,6 @@ export function useCover() {
                 track: position,
                 playlist: playlistName?.replace(/\//g, placeholder),
             };
-            const folderTemplate = settings.folderTemplate || "";
-            const useAlbumSubfolder = folderTemplate.includes("{album}") || folderTemplate.includes("{album_artist}") || folderTemplate.includes("{playlist}");
-            if (playlistName && (!isAlbum || !useAlbumSubfolder)) {
-                outputDir = joinPath(os, outputDir, sanitizePath(playlistName.replace(/\//g, " "), os));
-            }
             if (settings.folderTemplate) {
                 const folderPath = parseTemplate(settings.folderTemplate, templateData);
                 if (folderPath) {
@@ -92,7 +87,7 @@ export function useCover() {
             setDownloadingCoverTrack(null);
         }
     };
-    const handleDownloadAllCovers = async (tracks: TrackMetadata[], playlistName?: string, isAlbum?: boolean) => {
+    const handleDownloadAllCovers = async (tracks: TrackMetadata[], playlistName?: string, _isAlbum?: boolean) => {
         if (tracks.length === 0) {
             toast.error("No tracks to download covers");
             return;
@@ -131,11 +126,6 @@ export function useCover() {
                     track: trackPosition,
                     playlist: playlistName?.replace(/\//g, placeholder),
                 };
-                const folderTemplate = settings.folderTemplate || "";
-                const useAlbumSubfolder = folderTemplate.includes("{album}") || folderTemplate.includes("{album_artist}") || folderTemplate.includes("{playlist}");
-                if (playlistName && (!isAlbum || !useAlbumSubfolder)) {
-                    outputDir = joinPath(os, outputDir, sanitizePath(playlistName.replace(/\//g, " "), os));
-                }
                 if (settings.folderTemplate) {
                     const folderPath = parseTemplate(settings.folderTemplate, templateData);
                     if (folderPath) {
