@@ -25,7 +25,11 @@ export interface Settings {
     amazonQuality: "original";
     autoOrder: "tidal-qobuz-amazon" | "tidal-amazon-qobuz" | "qobuz-tidal-amazon" | "qobuz-amazon-tidal" | "amazon-tidal-qobuz" | "amazon-qobuz-tidal" | "tidal-qobuz" | "tidal-amazon" | "qobuz-tidal" | "qobuz-amazon" | "amazon-tidal" | "amazon-qobuz";
     autoQuality: "16" | "24";
-    concurrentDownloads: 1 | 2 | 3;
+    allowFallback: boolean;
+    concurrentDownloads: 1 | 2 | 3 |4 | 5;
+    outputFormat: "flac" | "mp3" | "aac";
+    mp3Bitrate: "128k" | "192k" | "256k" | "320k";
+    aacBitrate: "128k" | "192k" | "256k" | "320k";
 }
 export const FOLDER_PRESETS: Record<FolderPreset, {
     label: string;
@@ -101,7 +105,11 @@ export const DEFAULT_SETTINGS: Settings = {
     amazonQuality: "original",
     autoOrder: "tidal-qobuz-amazon",
     autoQuality: "16",
-    concurrentDownloads: 1
+    allowFallback: true,
+    concurrentDownloads: 1,
+    outputFormat: "flac",
+    mp3Bitrate: "320k",
+    aacBitrate: "256k"
 };
 export const FONT_OPTIONS: {
     value: FontFamily;
@@ -208,6 +216,21 @@ function getSettingsFromLocalStorage(): Settings {
             if (!('autoQuality' in parsed)) {
                 parsed.autoQuality = "16";
             }
+            if (!('allowFallback' in parsed)) {
+                parsed.allowFallback = true;
+            }
+            if (!('concurrentDownloads' in parsed)) {
+                parsed.concurrentDownloads = 1;
+            }
+            if (!('outputFormat' in parsed)) {
+                parsed.outputFormat = "flac";
+            }
+            if (!('mp3Bitrate' in parsed)) {
+                parsed.mp3Bitrate = "320k";
+            }
+            if (!('aacBitrate' in parsed)) {
+                parsed.aacBitrate = "256k";
+            }
             return { ...DEFAULT_SETTINGS, ...parsed };
         }
     }
@@ -283,6 +306,21 @@ export async function loadSettings(): Promise<Settings> {
             }
             if (!('autoQuality' in parsed)) {
                 parsed.autoQuality = "16";
+            }
+            if (!('allowFallback' in parsed)) {
+                parsed.allowFallback = true;
+            }
+            if (!('concurrentDownloads' in parsed)) {
+                parsed.concurrentDownloads = 1;
+            }
+            if (!('outputFormat' in parsed)) {
+                parsed.outputFormat = "flac";
+            }
+            if (!('mp3Bitrate' in parsed)) {
+                parsed.mp3Bitrate = "320k";
+            }
+            if (!('aacBitrate' in parsed)) {
+                parsed.aacBitrate = "256k";
             }
             cachedSettings = { ...DEFAULT_SETTINGS, ...parsed };
             return cachedSettings!;
