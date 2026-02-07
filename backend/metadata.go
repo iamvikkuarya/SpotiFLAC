@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	pathfilepath "path/filepath"
+	pathpkg "path/filepath"
 	"strconv"
 	"strings"
 
@@ -208,7 +208,7 @@ func EmbedLyricsOnly(filepath string, lyrics string) error {
 }
 
 func ExtractCoverArt(filePath string) (string, error) {
-	ext := strings.ToLower(pathfilepath.Ext(filePath))
+	ext := strings.ToLower(pathpkg.Ext(filePath))
 
 	switch ext {
 	case ".mp3":
@@ -252,7 +252,7 @@ func extractCoverFromMp3(filePath string) (string, error) {
 }
 
 func extractCoverFromM4AOrFlac(filePath string) (string, error) {
-	ext := strings.ToLower(pathfilepath.Ext(filePath))
+	ext := strings.ToLower(pathpkg.Ext(filePath))
 
 	if ext == ".flac" {
 		f, err := flac.ParseFile(filePath)
@@ -288,7 +288,7 @@ func extractCoverFromM4AOrFlac(filePath string) (string, error) {
 }
 
 func ExtractLyrics(filePath string) (string, error) {
-	ext := strings.ToLower(pathfilepath.Ext(filePath))
+	ext := strings.ToLower(pathpkg.Ext(filePath))
 
 	switch ext {
 	case ".mp3":
@@ -367,7 +367,7 @@ func EmbedCoverArtOnly(filePath string, coverPath string) error {
 		return nil
 	}
 
-	ext := strings.ToLower(pathfilepath.Ext(filePath))
+	ext := strings.ToLower(pathpkg.Ext(filePath))
 
 	switch ext {
 	case ".mp3":
@@ -463,7 +463,7 @@ func embedLyricsToM4A(filepath string, lyrics string) error {
 		return fmt.Errorf("invalid ffmpeg executable: %w", err)
 	}
 
-	tmpOutputFile := strings.TrimSuffix(filepath, pathfilepath.Ext(filepath)) + ".tmp" + pathfilepath.Ext(filepath)
+	tmpOutputFile := strings.TrimSuffix(filepath, pathpkg.Ext(filepath)) + ".tmp" + pathpkg.Ext(filepath)
 	defer func() {
 
 		if _, err := os.Stat(tmpOutputFile); err == nil {
@@ -504,7 +504,7 @@ func EmbedLyricsOnlyUniversal(filepath string, lyrics string) error {
 		return nil
 	}
 
-	ext := strings.ToLower(pathfilepath.Ext(filepath))
+	ext := strings.ToLower(pathpkg.Ext(filepath))
 	switch ext {
 	case ".mp3":
 		return EmbedLyricsOnlyMP3(filepath, lyrics)
@@ -518,7 +518,7 @@ func EmbedLyricsOnlyUniversal(filepath string, lyrics string) error {
 }
 
 func GetAudioDuration(filepath string) (float64, error) {
-	ext := strings.ToLower(pathfilepath.Ext(filepath))
+	ext := strings.ToLower(pathpkg.Ext(filepath))
 
 	if ext == ".flac" {
 		duration, err := getFlacDuration(filepath)
@@ -784,7 +784,7 @@ func ExtractFullMetadataFromFile(filePath string) (Metadata, error) {
 }
 
 func EmbedMetadataToConvertedFile(filePath string, metadata Metadata, coverPath string) error {
-	ext := strings.ToLower(pathfilepath.Ext(filePath))
+	ext := strings.ToLower(pathpkg.Ext(filePath))
 
 	switch ext {
 	case ".flac":
@@ -942,7 +942,7 @@ func embedMetadataToM4A(filePath string, metadata Metadata, coverPath string) er
 		args = append(args, "-metadata", "publisher="+metadata.Publisher)
 	}
 
-	tmpOutputFile := strings.TrimSuffix(filePath, pathfilepath.Ext(filePath)) + ".tmp" + pathfilepath.Ext(filePath)
+	tmpOutputFile := strings.TrimSuffix(filePath, pathpkg.Ext(filePath)) + ".tmp" + pathpkg.Ext(filePath)
 	defer func() {
 		if _, err := os.Stat(tmpOutputFile); err == nil {
 			os.Remove(tmpOutputFile)
