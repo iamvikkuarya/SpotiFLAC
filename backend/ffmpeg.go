@@ -350,14 +350,14 @@ func extractZip(zipPath, destDir string) error {
 		}
 
 		var destPath string
-		if baseName == ffmpegName {
+		switch baseName {
+		case ffmpegName:
 			destPath = filepath.Join(destDir, ffmpegName)
 			foundFFmpeg = true
-		} else if baseName == ffprobeName {
+		case ffprobeName:
 			destPath = filepath.Join(destDir, ffprobeName)
 			foundFFprobe = true
-		} else {
-
+		default:
 			continue
 		}
 
@@ -434,14 +434,14 @@ func extractTarXz(tarXzPath, destDir string) error {
 		baseName := filepath.Base(header.Name)
 		var destPath string
 
-		if baseName == ffmpegName {
+		switch baseName {
+		case ffmpegName:
 			destPath = filepath.Join(destDir, ffmpegName)
 			foundFFmpeg = true
-		} else if baseName == ffprobeName {
+		case ffprobeName:
 			destPath = filepath.Join(destDir, ffprobeName)
 			foundFFprobe = true
-		} else {
-
+		default:
 			continue
 		}
 

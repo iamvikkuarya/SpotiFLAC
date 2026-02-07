@@ -485,11 +485,12 @@ func (a *App) DownloadTrack(req DownloadRequest) (DownloadResponse, error) {
 
 				// Determine bitrate based on format
 				bitrate := "320k"
-				if outputFormat == "mp3" {
+				switch outputFormat {
+				case "mp3":
 					if mp3Bitrate, ok := settings["mp3Bitrate"].(string); ok && mp3Bitrate != "" {
 						bitrate = mp3Bitrate
 					}
-				} else if outputFormat == "aac" {
+				case "aac":
 					if aacBitrate, ok := settings["aacBitrate"].(string); ok && aacBitrate != "" {
 						bitrate = aacBitrate
 					} else {
