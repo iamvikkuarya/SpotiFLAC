@@ -83,11 +83,7 @@ export function useDownload(region: string) {
             year: yearValue,
             playlist: playlistName?.replace(/\//g, placeholder),
         };
-        const folderTemplate = settings.folderTemplate || "";
-        const useAlbumSubfolder = folderTemplate.includes("{album}") || folderTemplate.includes("{album_artist}") || folderTemplate.includes("{playlist}");
-        if (playlistName && !useAlbumSubfolder) {
-            outputDir = joinPath(os, outputDir, sanitizePath(playlistName.replace(/\//g, " "), os));
-        }
+        // Download directly to selected folder without playlist subfolders
         if (settings.folderTemplate) {
             const folderPath = parseTemplate(settings.folderTemplate, templateData);
             if (folderPath) {
