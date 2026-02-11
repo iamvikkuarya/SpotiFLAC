@@ -26,10 +26,15 @@ export interface Settings {
     autoOrder: "tidal-qobuz-amazon" | "tidal-amazon-qobuz" | "qobuz-tidal-amazon" | "qobuz-amazon-tidal" | "amazon-tidal-qobuz" | "amazon-qobuz-tidal" | "tidal-qobuz" | "tidal-amazon" | "qobuz-tidal" | "qobuz-amazon" | "amazon-tidal" | "amazon-qobuz";
     autoQuality: "16" | "24";
     allowFallback: boolean;
-    concurrentDownloads: 1 | 2 | 3 |4 | 5;
+    concurrentDownloads: 1 | 2 | 3 | 4 | 5;
     outputFormat: "flac" | "mp3" | "aac";
     mp3Bitrate: "128k" | "192k" | "256k" | "320k";
     aacBitrate: "128k" | "192k" | "256k" | "320k";
+    useSpotFetchAPI: boolean;
+    spotFetchAPIUrl: string;
+    createPlaylistFolder: boolean;
+    createM3u8File: boolean;
+    useFirstArtistOnly: boolean;
 }
 export const FOLDER_PRESETS: Record<FolderPreset, {
     label: string;
@@ -109,7 +114,12 @@ export const DEFAULT_SETTINGS: Settings = {
     concurrentDownloads: 1,
     outputFormat: "flac",
     mp3Bitrate: "320k",
-    aacBitrate: "256k"
+    aacBitrate: "256k",
+    useSpotFetchAPI: false,
+    spotFetchAPIUrl: "https://spotify.afkarxyz.fun/api",
+    createPlaylistFolder: false,
+    createM3u8File: false,
+    useFirstArtistOnly: false
 };
 export const FONT_OPTIONS: {
     value: FontFamily;
@@ -321,6 +331,15 @@ export async function loadSettings(): Promise<Settings> {
             }
             if (!('aacBitrate' in parsed)) {
                 parsed.aacBitrate = "256k";
+            }
+            if (!('createPlaylistFolder' in parsed)) {
+                parsed.createPlaylistFolder = false;
+            }
+            if (!('createM3u8File' in parsed)) {
+                parsed.createM3u8File = false;
+            }
+            if (!('useFirstArtistOnly' in parsed)) {
+                parsed.useFirstArtistOnly = false;
             }
             cachedSettings = { ...DEFAULT_SETTINGS, ...parsed };
             return cachedSettings!;

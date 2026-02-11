@@ -73,6 +73,15 @@ It likely happens because the executable is compressed using UPX._
 
 _If you are concerned, you can fork the repository and build the software yourself from source._
 
+### Want to support the original author?
+
+_If this software is useful and brings you value,
+consider supporting the original author by buying them a coffee.
+Your support helps keep development going._
+
+[![Ko-fi](https://img.shields.io/badge/Support%20afkarxyz%20on%20Ko--fi-72a5f2?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/afkarxyz)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20afkarxyz%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/afkarxyz)
+
 ## Disclaimer
 
 This project is for **educational and private use only**. The developer does not condone or encourage copyright infringement.
