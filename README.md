@@ -12,19 +12,36 @@ Get Spotify tracks in lossless FLAC from Tidal, Qobuz & Amazon Music — no acco
 
 ## What This Fork Adds
 
-This fork builds on top of the original SpotiFLAC with two major features:
+This fork builds on top of the original SpotiFLAC with enhanced features:
 
-### Parallel Downloads (1-5 concurrent workers)
+### 🚀 Parallel Downloads (1-5 concurrent workers)
 - Download multiple tracks simultaneously instead of one at a time
-- Configurable from 1 (sequential) to 5 (maximum) concurrent downloads
+- Configurable from 1 (sequential/safest) to 5 (maximum speed)
+- Safety warnings for 3-5 workers (higher risk of rate limiting)
 - Ideal for batch downloading albums and playlists
 
-### Output Format Selection
+### 🎵 Output Format Selection
 - **FLAC** — Lossless (default, same as original)
-- **MP3** — Lossy, configurable bitrate: 128k / 192k / 256k / 320k
-- **AAC (M4A)** — Lossy, configurable bitrate: 128k / 192k / 256k / 320k
+- **MP3** — Lossy, configurable bitrate: 128k / 192k / 256k / **320k (default)**
+- **AAC (M4A)** — Lossy, configurable bitrate: 128k / 192k / **256k (default)** / 320k
 
 Downloads are always fetched in lossless quality first, then automatically converted to your selected format with full metadata preservation (title, artist, album, cover art, lyrics).
+
+### 🔄 Smart File Skipping
+- Automatically detects existing files in your output folder
+- Skips re-downloading files that already exist (works with all formats)
+- Saves bandwidth and time when re-downloading playlists/albums
+
+### ✨ Latest Upstream Features (v7.0.8)
+- **SpotFetch API**: Alternative metadata source with configurable URL
+- **M3U8 Playlists**: Automatically create playlist files for downloaded batches
+- **First Artist Only**: Option to use only the first artist in multi-artist tracks
+- **Year Field**: New template variable `{year}` for folder/filename organization
+- **Enhanced FFmpeg Detection**: Improved automatic detection of FFmpeg/FFprobe paths
+
+### 🚫 No Playlist Subfolders
+- Downloads go directly to your selected output folder
+- No automatic playlist/album subfolder creation (user requirement)
 
 ---
 
