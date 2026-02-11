@@ -343,7 +343,7 @@ export function useDownload(region: string) {
         }
         return singleServiceResponse;
     };
-    const downloadWithItemID = async (isrc: string, settings: any, itemID: string, trackName?: string, artistName?: string, albumName?: string, folderName?: string, position?: number, spotifyId?: string, durationMs?: number, isAlbum?: boolean, releaseYear?: string, albumArtist?: string, releaseDate?: string, coverUrl?: string, spotifyTrackNumber?: number, spotifyDiscNumber?: number, spotifyTotalTracks?: number, spotifyTotalDiscs?: number, copyright?: string, publisher?: string) => {
+    const downloadWithItemID = async (isrc: string, settings: any, itemID: string, trackName?: string, artistName?: string, albumName?: string, folderName?: string, position?: number, spotifyId?: string, durationMs?: number, _isAlbum?: boolean, releaseYear?: string, albumArtist?: string, releaseDate?: string, coverUrl?: string, spotifyTrackNumber?: number, spotifyDiscNumber?: number, spotifyTotalTracks?: number, spotifyTotalDiscs?: number, copyright?: string, publisher?: string) => {
         const service = settings.downloader;
         const query = trackName && artistName ? `${trackName} ${artistName}` : undefined;
         const os = settings.operatingSystem;
@@ -383,11 +383,7 @@ export function useDownload(region: string) {
             year: yearValue,
             playlist: folderName?.replace(/\//g, placeholder),
         };
-        const folderTemplate = settings.folderTemplate || "";
-        const useAlbumSubfolder = folderTemplate.includes("{album}") || folderTemplate.includes("{album_artist}") || folderTemplate.includes("{playlist}");
-        if (settings.createPlaylistFolder && folderName && (!isAlbum || !useAlbumSubfolder)) {
-            outputDir = joinPath(os, outputDir, sanitizePath(folderName.replace(/\//g, " "), os));
-        }
+        // Download directly to selected folder without playlist subfolders
         if (settings.folderTemplate) {
             const folderPath = parseTemplate(settings.folderTemplate, templateData);
             if (folderPath) {
@@ -636,11 +632,7 @@ export function useDownload(region: string) {
         setBulkDownloadType("selected");
         setDownloadProgress(0);
         let outputDir = settings.downloadPath;
-        const os = settings.operatingSystem;
-        const useAlbumTag = settings.folderTemplate?.includes("{album}");
-        if (settings.createPlaylistFolder && folderName && (!isAlbum || !useAlbumTag)) {
-            outputDir = joinPath(os, outputDir, sanitizePath(folderName.replace(/\//g, " "), os));
-        }
+        // Download directly to selected folder without playlist subfolders
         const selectedTrackObjects = selectedTracks
             .map((isrc) => allTracks.find((t) => t.isrc === isrc))
             .filter((t): t is TrackMetadata => t !== undefined);
@@ -805,11 +797,7 @@ export function useDownload(region: string) {
         setBulkDownloadType("all");
         setDownloadProgress(0);
         let outputDir = settings.downloadPath;
-        const os = settings.operatingSystem;
-        const useAlbumTag = settings.folderTemplate?.includes("{album}");
-        if (settings.createPlaylistFolder && folderName && (!isAlbum || !useAlbumTag)) {
-            outputDir = joinPath(os, outputDir, sanitizePath(folderName.replace(/\//g, " "), os));
-        }
+        // Download directly to selected folder without playlist subfolders
         logger.info(`checking existing files in parallel...`);
         const useAlbumTrackNumber = settings.folderTemplate?.includes("{album}") || false;
         const audioFormat = "flac";
