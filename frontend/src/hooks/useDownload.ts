@@ -644,7 +644,7 @@ export function useDownload(region: string) {
             .filter((t): t is TrackMetadata => t !== undefined);
         logger.info(`checking existing files in parallel...`);
         const useAlbumTrackNumber = settings.folderTemplate?.includes("{album}") || false;
-        const audioFormat = "flac";
+        const audioFormat = settings.outputFormat || "flac";
         const existenceChecks = selectedTrackObjects.map((track, index) => {
             return {
                 spotify_id: track.spotify_id || track.isrc,
@@ -812,7 +812,7 @@ export function useDownload(region: string) {
         // Download directly to selected folder without playlist subfolders
         logger.info(`checking existing files in parallel...`);
         const useAlbumTrackNumber = settings.folderTemplate?.includes("{album}") || false;
-        const audioFormat = "flac";
+        const audioFormat = settings.outputFormat || "flac";
         const existenceChecks = tracksWithIsrc.map((track, index) => {
             return {
                 spotify_id: track.spotify_id || track.isrc,

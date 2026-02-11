@@ -1247,7 +1247,8 @@ func (a *App) CheckFilesExistence(outputDir string, rootDir string, tracks []Che
 					return nil
 				}
 				if !info.IsDir() {
-					if strings.EqualFold(filepath.Ext(path), ".flac") || strings.EqualFold(filepath.Ext(path), ".mp3") {
+					ext := filepath.Ext(path)
+					if strings.EqualFold(ext, ".flac") || strings.EqualFold(ext, ".mp3") || strings.EqualFold(ext, ".m4a") || strings.EqualFold(ext, ".aac") {
 						rootDirFiles[info.Name()] = path
 					}
 				}
@@ -1285,6 +1286,8 @@ func (a *App) CheckFilesExistence(outputDir string, rootDir string, tracks []Che
 			fileExt := ".flac"
 			if t.AudioFormat == "mp3" {
 				fileExt = ".mp3"
+			} else if t.AudioFormat == "aac" {
+				fileExt = ".m4a"
 			}
 
 			expectedFilenameBase := backend.BuildExpectedFilename(
