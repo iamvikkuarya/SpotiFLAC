@@ -628,6 +628,12 @@ export function useDownload(region: string) {
         }
         logger.info(`starting batch download: ${selectedTracks.length} selected tracks`);
         const settings = getSettings();
+
+        // Set parallel download configuration
+        const { SetParallelConfig } = await import("../../wailsjs/go/main/App");
+        await SetParallelConfig(settings.concurrentDownloads || 1);
+        logger.info(`parallel downloads configured: ${settings.concurrentDownloads} workers`);
+
         setIsDownloading(true);
         setBulkDownloadType("selected");
         setDownloadProgress(0);
@@ -793,6 +799,12 @@ export function useDownload(region: string) {
         }
         logger.info(`starting batch download: ${tracksWithIsrc.length} tracks`);
         const settings = getSettings();
+
+        // Set parallel download configuration
+        const { SetParallelConfig } = await import("../../wailsjs/go/main/App");
+        await SetParallelConfig(settings.concurrentDownloads || 1);
+        logger.info(`parallel downloads configured: ${settings.concurrentDownloads} workers`);
+
         setIsDownloading(true);
         setBulkDownloadType("all");
         setDownloadProgress(0);
