@@ -38,6 +38,20 @@ interface FileExistenceResult {
 const CheckFilesExistence = (outputDir: string, rootDir: string, tracks: CheckFileExistenceRequest[]): Promise<FileExistenceResult[]> => (window as any)["go"]["main"]["App"]["CheckFilesExistence"](outputDir, rootDir, tracks);
 const SkipDownloadItem = (itemID: string, filePath: string): Promise<void> => (window as any)["go"]["main"]["App"]["SkipDownloadItem"](itemID, filePath);
 const CreateM3U8File = (playlistName: string, outputDir: string, filePaths: string[]): Promise<void> => (window as any)["go"]["main"]["App"]["CreateM3U8File"](playlistName, outputDir, filePaths);
+async function runWithConcurrency<T>(tasks: (() => Promise<T>)[], maxConcurrent: number): Promise<T[]> {
+    const results: T[] = new Array(tasks.length);
+    let nextIndex = 0;
+    async function worker() {
+        while (true) {
+            const index = nextIndex++;
+            if (index >= tasks.length) break;
+            results[index] = await tasks[index]();
+        }
+    }
+    const workers = Array.from({ length: Math.min(maxConcurrent, tasks.length) }, () => worker());
+    await Promise.all(workers);
+    return results;
+}
 export function useDownload(region: string) {
     const [downloadProgress, setDownloadProgress] = useState<number>(0);
     const [isDownloading, setIsDownloading] = useState(false);
@@ -697,14 +711,12 @@ export function useDownload(region: string) {
         let skippedCount = existingSpotifyIDs.size;
         const total = selectedTracks.length;
         setDownloadProgress(Math.round((skippedCount / total) * 100));
-        for (let i = 0; i < tracksToDownload.length; i++) {
-            if (shouldStopDownloadRef.current) {
-                toast.info(`Download stopped. ${successCount} tracks downloaded, ${tracksToDownload.length - i} remaining.`);
-                break;
-            }
-            const track = tracksToDownload[i];
+        const concurrency = settings.concurrentDownloads || 1;
+        const selectedIndexMap = new Map<string, number>(selectedTracks.map((isrc, i) => [isrc, i]));
+        const downloadTasks = tracksToDownload.map((track) => async () => {
+            if (shouldStopDownloadRef.current) return;
             const isrc = track.isrc;
-            const originalIndex = selectedTracks.indexOf(isrc);
+            const originalIndex = selectedIndexMap.get(isrc) ?? selectedTracks.indexOf(isrc);
             const itemID = itemIDs[originalIndex];
             setDownloadingTrack(isrc);
             setCurrentDownloadInfo({ name: track.name, artists: track.artists });
@@ -749,6 +761,14 @@ export function useDownload(region: string) {
             }
             const completedCount = skippedCount + successCount + errorCount;
             setDownloadProgress(Math.min(100, Math.round((completedCount / total) * 100)));
+        });
+        if (shouldStopDownloadRef.current) {
+            toast.info(`Download stopped before starting.`);
+        } else {
+            await runWithConcurrency(downloadTasks, concurrency);
+            if (shouldStopDownloadRef.current) {
+                toast.info(`Download stopped. ${successCount} tracks downloaded.`);
+            }
         }
         setDownloadingTrack(null);
         setCurrentDownloadInfo(null);
@@ -865,12 +885,9 @@ export function useDownload(region: string) {
         let skippedCount = existingSpotifyIDs.size;
         const total = tracksWithIsrc.length;
         setDownloadProgress(Math.round((skippedCount / total) * 100));
-        for (let i = 0; i < tracksToDownload.length; i++) {
-            if (shouldStopDownloadRef.current) {
-                toast.info(`Download stopped. ${successCount} tracks downloaded, ${tracksToDownload.length - i} remaining.`);
-                break;
-            }
-            const track = tracksToDownload[i];
+        const concurrency = settings.concurrentDownloads || 1;
+        const downloadTasks = tracksToDownload.map((track) => async () => {
+            if (shouldStopDownloadRef.current) return;
             const originalIndex = tracksWithIsrc.findIndex((t) => t.isrc === track.isrc);
             const itemID = itemIDs[originalIndex];
             setDownloadingTrack(track.isrc);
@@ -913,6 +930,14 @@ export function useDownload(region: string) {
             }
             const completedCount = skippedCount + successCount + errorCount;
             setDownloadProgress(Math.min(100, Math.round((completedCount / total) * 100)));
+        });
+        if (shouldStopDownloadRef.current) {
+            toast.info(`Download stopped before starting.`);
+        } else {
+            await runWithConcurrency(downloadTasks, concurrency);
+            if (shouldStopDownloadRef.current) {
+                toast.info(`Download stopped. ${successCount} tracks downloaded.`);
+            }
         }
         setDownloadingTrack(null);
         setCurrentDownloadInfo(null);

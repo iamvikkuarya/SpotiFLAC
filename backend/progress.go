@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -38,6 +39,7 @@ var (
 	currentProgressLock sync.RWMutex
 	isDownloading       bool
 	downloadingLock     sync.RWMutex
+	activeDownloads     int32 // atomic counter for parallel downloads
 	currentSpeed        float64
 	speedLock           sync.RWMutex
 
@@ -102,14 +104,23 @@ func SetDownloadProgress(mbDownloaded float64) {
 }
 
 func SetDownloading(downloading bool) {
-	downloadingLock.Lock()
-	isDownloading = downloading
-	downloadingLock.Unlock()
-
-	if !downloading {
-
-		SetDownloadProgress(0)
-		SetDownloadSpeed(0)
+	if downloading {
+		newCount := atomic.AddInt32(&activeDownloads, 1)
+		if newCount == 1 {
+			downloadingLock.Lock()
+			isDownloading = true
+			downloadingLock.Unlock()
+		}
+	} else {
+		newCount := atomic.AddInt32(&activeDownloads, -1)
+		if newCount <= 0 {
+			atomic.StoreInt32(&activeDownloads, 0)
+			downloadingLock.Lock()
+			isDownloading = false
+			downloadingLock.Unlock()
+			SetDownloadProgress(0)
+			SetDownloadSpeed(0)
+		}
 	}
 }
 
@@ -389,9 +400,9 @@ func CancelAllQueuedItems() {
 
 	for i := range downloadQueue {
 		if downloadQueue[i].Status == StatusQueued {
-			downloadQueue[i].Status = StatusSkipped
+			downloadQueue[i].Status = StatusFailed
 			downloadQueue[i].EndTime = time.Now().Unix()
-			downloadQueue[i].ErrorMessage = "Cancelled"
+			downloadQueue[i].ErrorMessage = "Cancelled by user"
 		}
 	}
 }
@@ -411,9 +422,7 @@ func ResetSessionIfComplete() {
 		sessionStartLock.Lock()
 		sessionStartTime = 0
 		sessionStartLock.Unlock()
-
-		totalDownloadedLock.Lock()
-		totalDownloaded = 0
-		totalDownloadedLock.Unlock()
+		// Note: totalDownloaded is intentionally NOT reset here so stats
+		// remain visible in the queue dialog until the user clears them.
 	}
 }

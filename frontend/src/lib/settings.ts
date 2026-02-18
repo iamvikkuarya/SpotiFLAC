@@ -195,8 +195,8 @@ function getSettingsFromLocalStorage(): Settings {
             if (!('filenamePreset' in parsed) && 'filenameFormat' in parsed) {
                 const format = parsed.filenameFormat;
                 if (format === "title-artist") {
-                    parsed.filenamePreset = "artist-title";
-                    parsed.filenameTemplate = "{artist} - {title}";
+                    parsed.filenamePreset = "title-artist";
+                    parsed.filenameTemplate = "{title} - {artist}";
                 }
                 else if (format === "artist-title") {
                     parsed.filenamePreset = "artist-title";
@@ -286,8 +286,8 @@ export async function loadSettings(): Promise<Settings> {
             if (!('filenamePreset' in parsed) && 'filenameFormat' in parsed) {
                 const format = parsed.filenameFormat;
                 if (format === "title-artist") {
-                    parsed.filenamePreset = "artist-title";
-                    parsed.filenameTemplate = "{artist} - {title}";
+                    parsed.filenamePreset = "title-artist";
+                    parsed.filenameTemplate = "{title} - {artist}";
                 }
                 else if (format === "artist-title") {
                     parsed.filenamePreset = "artist-title";
